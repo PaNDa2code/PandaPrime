@@ -100,7 +100,7 @@ static PyTypeObject PrimeGenType = {
 static PyModuleDef primes_module = {
     PyModuleDef_HEAD_INIT,
     "PaNDaPrime",
-    NULL,
+    "`primes_range` is a genrator object you can you to iterate over the primes faster than the normal ways.",
     -1,
     NULL,
     NULL,
