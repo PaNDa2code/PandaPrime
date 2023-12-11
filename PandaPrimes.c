@@ -85,12 +85,12 @@ static PyMethodDef PrimeGen_methods[] = {
 
 static PyTypeObject PrimeGenType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-        .tp_name = "primes.primes_range",
+        .tp_name = "primes_range",
     .tp_basicsize = sizeof(primes_range),
     .tp_itemsize = 0,
     .tp_dealloc = (destructor)PrimeGen_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = "primes_range objects",
+    .tp_doc = "`primes_range` object is an object like Python's built-in range but iterates only over prime numbers.",
     .tp_iter = (getiterfunc)PrimeGen_iter,
     .tp_iternext = (iternextfunc)PrimeGen_next,
     .tp_methods = PrimeGen_methods,
@@ -100,7 +100,7 @@ static PyTypeObject PrimeGenType = {
 static PyModuleDef primes_module = {
     PyModuleDef_HEAD_INIT,
     "PaNDaPrime",
-    "`primes_range` is a genrator object you can you to iterate over the primes faster than the normal ways.",
+    "Deal with primes faster than the normal ways.",
     -1,
     NULL,
     NULL,
