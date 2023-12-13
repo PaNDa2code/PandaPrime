@@ -10,11 +10,13 @@ typedef struct
 
 static PyObject *PrimeGen_new(PyTypeObject *type, PyObject *args, PyObject *kwarg)
 {
-    int start, end;
+    unsigned long long start, end;
+
+    // Check the number of arguments
     if (PyTuple_Size(args) == 2)
     {
         // Attempt to parse two integers
-        if (!PyArg_ParseTuple(args, "ii", &start, &end))
+        if (!PyArg_ParseTuple(args, "KK", &start, &end)) // Use "KK" for unsigned long long
         {
             PyErr_SetString(PyExc_TypeError, "Invalid argument types. Expected two integers.");
             return NULL;
@@ -23,7 +25,7 @@ static PyObject *PrimeGen_new(PyTypeObject *type, PyObject *args, PyObject *kwar
     else if (PyTuple_Size(args) == 1)
     {
         // Attempt to parse a single integer
-        if (!PyArg_ParseTuple(args, "i", &end))
+        if (!PyArg_ParseTuple(args, "K", &end)) // Use "K" for unsigned long long
         {
             PyErr_SetString(PyExc_TypeError, "Invalid argument type. Expected a single integer.");
             return NULL;
@@ -45,10 +47,10 @@ static PyObject *PrimeGen_new(PyTypeObject *type, PyObject *args, PyObject *kwar
         return NULL;
     }
 
-    gen->start = (size_t)start;
-    gen->end = (size_t)end;
+    gen->start = start;
+    gen->end = end;
     primesieve_init(&gen->it);
-    primesieve_jump_to(&gen->it,start,end);
+    primesieve_jump_to(&gen->it, start, end);
 
     return (PyObject *)gen;
 }
