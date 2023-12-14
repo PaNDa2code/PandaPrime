@@ -128,6 +128,23 @@ static void Iterator_dealloc(Iterator *_it)
     Py_TYPE(_it)->tp_free((PyObject *)_it);
 }
 
+static PyObject *Iterator_next(Iterator *_it)
+{
+    u_int64_t next_prime = primesieve_next_prime(&_it->it);
+    return PyLong_FromLongLong(next_prime);
+};
+
+static PyObject *Iterator_prev(Iterator *_it)
+{
+    u_int64_t next_prime = primesieve_prev_prime(&_it->it);
+    return PyLong_FromLongLong(next_prime);
+};
+
+static PyMethodDef Iterator_methods[] = {
+    {"next_prime", (PyCFunction)Iterator_next, METH_NOARGS, "Get the next prime."},
+    {"prev_prime", (PyCFunction)Iterator_prev, METH_NOARGS, "Get the previous prime."},
+    {NULL, NULL, 0, NULL}};
+
 static PyTypeObject IteratorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "Iterator",
@@ -137,7 +154,10 @@ static PyTypeObject IteratorType = {
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Iterator doc",
     .tp_new = Iterator_new,
+    .tp_methods = Iterator_methods,
 };
+
+
 
 // Module Initialization
 

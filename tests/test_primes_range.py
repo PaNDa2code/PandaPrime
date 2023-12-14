@@ -1,4 +1,4 @@
-from PandaPrimes import *
+from PandaPrimes import primes_range
 
 def test_primes_range():
 
