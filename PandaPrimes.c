@@ -8,7 +8,7 @@ typedef struct
     size_t start, end;
 } primes_range;
 
-static PyObject *PrimeGen_new(PyTypeObject *type, PyObject *args, PyObject *kwarg)
+static PyObject *primes_range_new(PyTypeObject *type, PyObject *args, PyObject *kwarg)
 {
     unsigned long long start, end;
 
@@ -55,13 +55,13 @@ static PyObject *PrimeGen_new(PyTypeObject *type, PyObject *args, PyObject *kwar
     return (PyObject *)gen;
 }
 
-static void PrimeGen_dealloc(primes_range *gen)
+static void primes_range_dealloc(primes_range *gen)
 {
     primesieve_clear(&gen->it);
     Py_TYPE(gen)->tp_free((PyObject *)gen);
 }
 
-static PyObject *PrimeGen_next(primes_range *gen)
+static PyObject *primes_range_next(primes_range *gen)
 {
     size_t prime = primesieve_next_prime(&gen->it);
     if (prime <= gen->end)
@@ -75,54 +75,99 @@ static PyObject *PrimeGen_next(primes_range *gen)
     }
 }
 
-static PyObject *PrimeGen_iter(primes_range *gen)
+static PyObject *primes_range_iter(primes_range *gen)
 {
     Py_INCREF(gen);
     return (PyObject *)gen;
 }
 
-static PyMethodDef PrimeGen_methods[] = {
-    {"next_prime", (PyCFunction)PrimeGen_next, METH_NOARGS, "Get the next prime in the range."},
+static PyMethodDef primes_range_methods[] = {
+    // 4 is the value of METH_NOARGS
+    {"next_prime", (PyCFunction)primes_range_next, 4, "Get the next prime in the range."},
     {NULL, NULL, 0, NULL}};
 
-static PyTypeObject PrimeGenType = {
+static PyTypeObject primes_rangeType = {
     PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "primes_range",
     .tp_basicsize = sizeof(primes_range),
     .tp_itemsize = 0,
-    .tp_dealloc = (destructor)PrimeGen_dealloc,
+    .tp_dealloc = (destructor)primes_range_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "`primes_range` object is an object like Python's built-in range but iterates only over prime numbers.",
-    .tp_iter = (getiterfunc)PrimeGen_iter,
-    .tp_iternext = (iternextfunc)PrimeGen_next,
-    .tp_methods = PrimeGen_methods,
-    .tp_new = PrimeGen_new,
+    .tp_iter = (getiterfunc)primes_range_iter,
+    .tp_iternext = (iternextfunc)primes_range_next,
+    .tp_methods = primes_range_methods,
+    .tp_new = primes_range_new,
 };
 
-static PyModuleDef primes_module = {
+// Done with `primes_range`
+
+
+// Wraping the Itertor
+
+typedef struct
+{
+    PyObject_HEAD
+        primesieve_iterator it;
+} Iterator;
+
+static PyObject *Iterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Iterator *_it = (Iterator*)type->tp_alloc(type, 0);
+    
+    if(!_it){
+        return NULL;
+    };
+    primesieve_init(&_it->it);
+
+    return (PyObject *)_it;
+}
+
+static void Iterator_dealloc(Iterator *_it)
+{
+    primesieve_clear(&_it->it);
+    Py_TYPE(_it)->tp_free((PyObject *)_it);
+}
+
+static PyTypeObject IteratorType = {
+    PyVarObject_HEAD_INIT(NULL,0)
+        .tp_name = "Iterator",
+        .tp_basicsize = sizeof(Iterator),
+        .tp_itemsize = 0,
+        .tp_dealloc = (destructor)Iterator_dealloc,
+        .tp_flags = Py_TPFLAGS_DEFAULT,
+        .tp_doc = "Iterator doc",
+        .tp_new = Iterator_new,
+};
+
+
+
+
+
+
+static PyModuleDef PandaPrimes_module = {
     PyModuleDef_HEAD_INIT,
     "PaNDaPrime",
     "Deal with primes faster than the normal ways.",
     -1,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL};
+};
 
 PyMODINIT_FUNC PyInit_PandaPrimes(void)
 {
     PyObject *module;
-    module = PyModule_Create(&primes_module);
+    module = PyModule_Create(&PandaPrimes_module);
 
     if (module == NULL)
         return NULL;
 
-    if (PyType_Ready(&PrimeGenType) < 0)
+    if (PyType_Ready(&primes_rangeType) < 0)
+        return NULL;
+    if (PyType_Ready(&IteratorType) < 0)
         return NULL;
 
-    Py_INCREF(&PrimeGenType);
-    PyModule_AddObject(module, "primes_range", (PyObject *)&PrimeGenType);
+    Py_INCREF(&primes_rangeType);
+    PyModule_AddObject(module, "primes_range", (PyObject *)&primes_rangeType);
+    PyModule_AddObject(module, "Iterator", (PyObject *)&IteratorType);
 
     return module;
 }

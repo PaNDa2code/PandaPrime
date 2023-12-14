@@ -6,3 +6,6 @@ build
 *-info
 .*
 pyproject.toml
+
+# ignore the stub file for now
+*.pyi
