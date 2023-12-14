@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <primesieve.h>
 
+// Definition for primes_range
+
 typedef struct
 {
     PyObject_HEAD
@@ -16,8 +18,8 @@ static PyObject *primes_range_new(PyTypeObject *type, PyObject *args, PyObject *
     if (PyTuple_Size(args) == 2)
     {
         // Attempt to parse two integers
-        if (!PyArg_ParseTuple(args, "KK", &start, &end)) // Use "KK" for unsigned long long
-        {
+        if (!PyArg_ParseTuple(args, "KK", &start, &end))
+        { // Use "KK" for unsigned long long
             PyErr_SetString(PyExc_TypeError, "Invalid argument types. Expected two integers.");
             return NULL;
         }
@@ -25,8 +27,8 @@ static PyObject *primes_range_new(PyTypeObject *type, PyObject *args, PyObject *
     else if (PyTuple_Size(args) == 1)
     {
         // Attempt to parse a single integer
-        if (!PyArg_ParseTuple(args, "K", &end)) // Use "K" for unsigned long long
-        {
+        if (!PyArg_ParseTuple(args, "K", &end))
+        { // Use "K" for unsigned long long
             PyErr_SetString(PyExc_TypeError, "Invalid argument type. Expected a single integer.");
             return NULL;
         }
@@ -82,8 +84,7 @@ static PyObject *primes_range_iter(primes_range *gen)
 }
 
 static PyMethodDef primes_range_methods[] = {
-    // 4 is the value of METH_NOARGS
-    {"next_prime", (PyCFunction)primes_range_next, 4, "Get the next prime in the range."},
+    {"next_prime", (PyCFunction)primes_range_next, METH_NOARGS, "Get the next prime in the range."},
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject primes_rangeType = {
@@ -100,10 +101,7 @@ static PyTypeObject primes_rangeType = {
     .tp_new = primes_range_new,
 };
 
-// Done with `primes_range`
-
-
-// Wraping the Itertor
+// Definition for Iterator
 
 typedef struct
 {
@@ -113,11 +111,12 @@ typedef struct
 
 static PyObject *Iterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    Iterator *_it = (Iterator*)type->tp_alloc(type, 0);
-    
-    if(!_it){
+    Iterator *_it = (Iterator *)type->tp_alloc(type, 0);
+
+    if (!_it)
+    {
         return NULL;
-    };
+    }
     primesieve_init(&_it->it);
 
     return (PyObject *)_it;
@@ -130,20 +129,17 @@ static void Iterator_dealloc(Iterator *_it)
 }
 
 static PyTypeObject IteratorType = {
-    PyVarObject_HEAD_INIT(NULL,0)
+    PyVarObject_HEAD_INIT(NULL, 0)
         .tp_name = "Iterator",
-        .tp_basicsize = sizeof(Iterator),
-        .tp_itemsize = 0,
-        .tp_dealloc = (destructor)Iterator_dealloc,
-        .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_doc = "Iterator doc",
-        .tp_new = Iterator_new,
+    .tp_basicsize = sizeof(Iterator),
+    .tp_itemsize = 0,
+    .tp_dealloc = (destructor)Iterator_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "Iterator doc",
+    .tp_new = Iterator_new,
 };
 
-
-
-
-
+// Module Initialization
 
 static PyModuleDef PandaPrimes_module = {
     PyModuleDef_HEAD_INIT,

@@ -6,6 +6,6 @@ build
 *-info
 .*
 pyproject.toml
-
+*cache*
 # ignore the stub file for now
 *.pyi
