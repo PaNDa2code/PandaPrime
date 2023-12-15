@@ -11,10 +11,11 @@ class CustomBuild(build):
 
 setup(
     setup_requires=['setuptools','requests'],
+    packages=["PandaPrimes"],
     ext_modules=[
         Extension(
             name="PandaPrimes",
-            sources=["PandaPrimes.c"],
+            sources=["PandaPrimes/src/PandaPrimes.c"],
             libraries=["primesieve"],  # Specify the library to link against
             include_dirs=["include"],
         )
