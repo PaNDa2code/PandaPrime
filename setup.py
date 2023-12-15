@@ -2,7 +2,6 @@ from setuptools import Extension, setup
 from setuptools.command.install import install
 from setuptools.command.build import build
 from setuptools.command.build_ext import build_ext
-from setuptools.command.build_py import build_py
 import subprocess
 
 # Download the header files before installing or building
@@ -23,11 +22,6 @@ class CustomBuild_ext(build_ext):
         print("The custom bulid_ext is running")
         subprocess.run(['python', 'post_setup.py'])
         build_ext.run(self)
-class CustomBuild_py(build_py):
-    def run(self):
-        print("The custom bulid_py is running")
-        # subprocess.run(['python', 'post_setup.py'])
-        build_py.run(self)
 
 setup(
     setup_requires=['setuptools','requests'],
@@ -43,6 +37,5 @@ setup(
         'build':CustomBuild,
         'install':CustomInstall,
         'build_ext':CustomBuild_ext,
-        'build_py':CustomBuild_py,
         }
 )
