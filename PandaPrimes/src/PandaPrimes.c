@@ -1,9 +1,11 @@
 #include <Python.h>
 #include <primesieve.h>
-
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <numpy/arrayobject.h>
+#include <stdio.h>
 // Definition for primes_range
 
-typedef struct
+    typedef struct
 {
     PyObject_HEAD
         primesieve_iterator it;
@@ -140,9 +142,30 @@ static PyObject *Iterator_prev(Iterator *_it)
     return PyLong_FromLongLong(next_prime);
 };
 
+static PyObject *Iterator_jump_to(Iterator *_it, PyObject *args)
+{   
+    u_int64_t jump_to;
+    if(PyTuple_Size(args) != 1)
+    {
+        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argumnt");
+        return NULL;
+    }
+    if(!PyArg_ParseTuple(args, "K", &jump_to))
+    {
+        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argumnt");
+        return NULL;
+    }
+
+    primesieve_jump_to(&_it->it, jump_to, primesieve_get_max_stop());
+
+    Py_DECREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef Iterator_methods[] = {
     {"next_prime", (PyCFunction)Iterator_next, METH_NOARGS, "Get the next prime."},
     {"prev_prime", (PyCFunction)Iterator_prev, METH_NOARGS, "Get the previous prime."},
+    {"jump_to", (PyCFunction)Iterator_jump_to, METH_VARARGS, "Get the previous prime."},
     {NULL, NULL, 0, NULL}};
 
 static PyTypeObject IteratorType = {
@@ -157,15 +180,81 @@ static PyTypeObject IteratorType = {
     .tp_methods = Iterator_methods,
 };
 
+static PyObject *generate_primes(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop;
+    size_t size;
+    if (PyTuple_Size(args) == 1)
+    {
+        start = 2;
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyExc_TypeError, "Invalid argument");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyExc_TypeError, "Invalid arguments");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "Invalid number of arguments");
+        return NULL;
+    }
+    
+    int *primes = (int *)primesieve_generate_primes(start, stop, &size, INT_PRIMES);
 
+    if (primes == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error generating primes");
+        return NULL;
+    }
+
+    // never forget these
+    Py_Initialize();
+    import_array();
+
+    npy_intp dims[1] = {size};
+
+    PyObject *array = PyArray_SimpleNew(1, dims, NPY_INT);
+
+
+    if (array == NULL)
+    {
+        PyErr_SetString(PyExc_MemoryError, "Failed to create NumPy array");
+        primesieve_free(primes);
+        return NULL;
+    }
+
+    int *data = (int *)PyArray_DATA(array);
+
+    for (int i = 0; i < size; i++)
+    {
+        data[i] = primes[i];
+    }
+
+    primesieve_free(primes);
+    // Py_DECREF(array);
+    return array;
+}
 
 // Module Initialization
+
+static PyMethodDef PandaPrimes_methods[] = {
+    {"generate_primes", (PyCFunction)generate_primes, METH_VARARGS, "generate numpy array of primes"},
+    {NULL, NULL, 0, NULL}};
 
 static PyModuleDef PandaPrimes_module = {
     PyModuleDef_HEAD_INIT,
     "PaNDaPrime",
     "Deal with primes faster than the normal ways.",
     -1,
+    PandaPrimes_methods,
 };
 
 PyMODINIT_FUNC PyInit_PandaPrimes(void)
