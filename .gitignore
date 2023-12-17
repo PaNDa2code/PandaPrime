@@ -8,5 +8,6 @@ build
 include
 pyproject.toml
 *cache*
+*.diff
 # ignore the stub file for now
 *.pyi

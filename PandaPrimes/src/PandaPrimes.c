@@ -180,16 +180,71 @@ static PyTypeObject IteratorType = {
     .tp_methods = Iterator_methods,
 };
 
+int get_bit_size(u_int64_t integer)
+{
+    if (integer <= 65535)
+    {
+        return 16;
+    }
+    else if (integer <= 4294967295)
+    {
+        return 32;
+    }
+    else if (integer <= 18446744073709551615)
+    {
+        return 64;
+    }
+    return 64;
+}
+
+int get_np_type(int bit_size)
+{
+    if (bit_size == 16)
+    {
+        return NPY_UINT16;
+    }
+    else if (bit_size == 32)
+    {
+        return NPY_UINT32;
+    }
+    else if (bit_size == 64)
+    {
+        return NPY_UINT64;
+    }
+    return NPY_UINT64;
+}
+
+int get_primesieve_type(int bit_size)
+{
+    if (bit_size == 16)
+    {
+        return UINT16_PRIMES;
+    }
+    else if (bit_size == 32)
+    {
+        return UINT32_PRIMES;
+    }
+    else if (bit_size == 64)
+    {
+        return UINT64_PRIMES;
+    }
+    return UINT64_PRIMES;
+}
+
 static PyObject *generate_primes(PyObject *self, PyObject *args)
 {
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
     u_int64_t start, stop;
     size_t size;
+
     if (PyTuple_Size(args) == 1)
     {
         start = 2;
         if (!PyArg_ParseTuple(args, "K", &stop))
         {
             PyErr_SetString(PyExc_TypeError, "Invalid argument");
+            PyGILState_Release(gstate);
             return NULL;
         }
     }
@@ -198,50 +253,64 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
         if (!PyArg_ParseTuple(args, "KK", &start, &stop))
         {
             PyErr_SetString(PyExc_TypeError, "Invalid arguments");
+            PyGILState_Release(gstate);
             return NULL;
         }
     }
     else
     {
         PyErr_SetString(PyExc_TypeError, "Invalid number of arguments");
-        return NULL;
-    }
-    
-    int *primes = (int *)primesieve_generate_primes(start, stop, &size, INT_PRIMES);
-
-    if (primes == NULL)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "Error generating primes");
+        PyGILState_Release(gstate);
         return NULL;
     }
 
-    // never forget these
-    Py_Initialize();
-    import_array();
+    int bit_size = get_bit_size((u_int64_t)stop);
+    int np_int_type = get_np_type(bit_size);
+    int ps_int_type = get_primesieve_type(bit_size);
+    size = primesieve_count_primes(start,stop);
 
     npy_intp dims[1] = {size};
 
-    PyObject *array = PyArray_SimpleNew(1, dims, NPY_INT);
-
+    PyObject *array = PyArray_SimpleNew(1, dims, np_int_type);
 
     if (array == NULL)
     {
         PyErr_SetString(PyExc_MemoryError, "Failed to create NumPy array");
-        primesieve_free(primes);
+        PyGILState_Release(gstate);
         return NULL;
     }
 
-    int *data = (int *)PyArray_DATA(array);
+    Py_INCREF(array);
 
-    for (int i = 0; i < size; i++)
+
+    void *data = PyArray_DATA((PyArrayObject *)array);
+
+    primesieve_iterator it;
+    primesieve_init(&it);
+    primesieve_jump_to(&it,start,stop);
+
+    if (bit_size == 16)
     {
-        data[i] = primes[i];
+        for (int i = 0; i < (int)size; i++)
+            ((u_int16_t *)data)[i] = primesieve_next_prime(&it);
     }
+    else if (bit_size == 32)
+    {
+        for (int i = 0; i < (int)size; i++)
+            ((u_int32_t *)data)[i] = primesieve_next_prime(&it);
+    }
+    else if (bit_size == 64)
+    {
+        for (int i = 0; i < (int)size; i++)
+            ((u_int64_t *)data)[i] = primesieve_next_prime(&it);
+    }
+    // never forget these also
+    primesieve_free_iterator(&it);
 
-    primesieve_free(primes);
-    // Py_DECREF(array);
+    Py_DECREF(array);
+    PyGILState_Release(gstate);
     return array;
-}
+};
 
 // Module Initialization
 
@@ -269,7 +338,7 @@ PyMODINIT_FUNC PyInit_PandaPrimes(void)
         return NULL;
     if (PyType_Ready(&IteratorType) < 0)
         return NULL;
-
+    import_array()
     Py_INCREF(&primes_rangeType);
     PyModule_AddObject(module, "primes_range", (PyObject *)&primes_rangeType);
     PyModule_AddObject(module, "Iterator", (PyObject *)&IteratorType);
