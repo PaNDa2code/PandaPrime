@@ -180,59 +180,34 @@ static PyTypeObject IteratorType = {
     .tp_methods = Iterator_methods,
 };
 
-int get_bit_size(u_int64_t integer)
+typedef struct
 {
+    int numpy_int_type, primesieve_int_type;
+} Pint;
+
+Pint get_int_types(u_int64_t integer)
+{   
+    Pint m;
     if (integer <= 65535)
     {
-        return 16;
+        m.numpy_int_type = NPY_UINT16;
+        m.primesieve_int_type = UINT16_PRIMES;
     }
     else if (integer <= 4294967295)
     {
-        return 32;
+        m.numpy_int_type = NPY_UINT32;
+        m.primesieve_int_type = UINT32_PRIMES;
     }
     else if (integer <= 18446744073709551615)
     {
-        return 64;
+        m.numpy_int_type = NPY_UINT64;
+        m.primesieve_int_type = UINT64_PRIMES;
     }
-    return 64;
-}
-
-int get_np_type(int bit_size)
-{
-    if (bit_size == 16)
-    {
-        return NPY_UINT16;
-    }
-    else if (bit_size == 32)
-    {
-        return NPY_UINT32;
-    }
-    else if (bit_size == 64)
-    {
-        return NPY_UINT64;
-    }
-    return NPY_UINT64;
-}
-
-int get_primesieve_type(int bit_size)
-{
-    if (bit_size == 16)
-    {
-        return UINT16_PRIMES;
-    }
-    else if (bit_size == 32)
-    {
-        return UINT32_PRIMES;
-    }
-    else if (bit_size == 64)
-    {
-        return UINT64_PRIMES;
-    }
-    return UINT64_PRIMES;
-}
+    return m;  
+};
 
 static PyObject *generate_primes(PyObject *self, PyObject *args)
-{
+{   
     PyGILState_STATE gstate = PyGILState_Ensure();
 
     u_int64_t start, stop;
@@ -264,14 +239,14 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    int bit_size = get_bit_size((u_int64_t)stop);
-    int np_int_type = get_np_type(bit_size);
-    int ps_int_type = get_primesieve_type(bit_size);
-    size = primesieve_count_primes(start,stop);
+    Pint _MyInt = get_int_types((u_int64_t)stop);
+
+    void *primes = primesieve_generate_primes(start, stop, &size, _MyInt.primesieve_int_type);
 
     npy_intp dims[1] = {size};
 
-    PyObject *array = PyArray_SimpleNew(1, dims, np_int_type);
+    PyObject *array = PyArray_SimpleNewFromData(1, dims, _MyInt.numpy_int_type, primes);
+
 
     if (array == NULL)
     {
@@ -280,34 +255,11 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    Py_INCREF(array);
-
-
-    void *data = PyArray_DATA((PyArrayObject *)array);
-
-    primesieve_iterator it;
-    primesieve_init(&it);
-    primesieve_jump_to(&it,start,stop);
-
-    if (bit_size == 16)
-    {
-        for (int i = 0; i < (int)size; i++)
-            ((u_int16_t *)data)[i] = primesieve_next_prime(&it);
-    }
-    else if (bit_size == 32)
-    {
-        for (int i = 0; i < (int)size; i++)
-            ((u_int32_t *)data)[i] = primesieve_next_prime(&it);
-    }
-    else if (bit_size == 64)
-    {
-        for (int i = 0; i < (int)size; i++)
-            ((u_int64_t *)data)[i] = primesieve_next_prime(&it);
-    }
+    // make numpy to free the memory in the array for you when it's garbage collected
+    PyArray_ENABLEFLAGS((PyArrayObject *)array, NPY_ARRAY_OWNDATA);
+    
     // never forget these also
-    primesieve_free_iterator(&it);
 
-    Py_DECREF(array);
     PyGILState_Release(gstate);
     return array;
 };
