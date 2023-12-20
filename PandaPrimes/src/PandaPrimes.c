@@ -147,12 +147,12 @@ static PyObject *Iterator_jump_to(Iterator *_it, PyObject *args)
     u_int64_t jump_to;
     if(PyTuple_Size(args) != 1)
     {
-        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argumnt");
+        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argument");
         return NULL;
     }
     if(!PyArg_ParseTuple(args, "K", &jump_to))
     {
-        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argumnt");
+        PyErr_SetString(PyExc_TypeError, "jump_to method takes one argument");
         return NULL;
     }
 
@@ -318,11 +318,47 @@ static PyObject *generate_n_primes(PyObject *self, PyObject *args)
     PyGILState_Release(gstate);
     return array;
 }
+
+static PyObject *get_nth_prime(PyObject *self,PyObject *args)
+{
+    u_int64_t n, start, nth_prime;
+    if(PyTuple_Size(args) == 2)
+    {
+        if(!PyArg_ParseTuple(args, "KK", &n, &start ))
+        {
+            PyErr_SetString(PyErr_BadArgument,"Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if(PyTuple_Size(args) == 1)
+    {
+        if(!PyArg_ParseTuple(args, "K", &n))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function only takes two arguments."); /* code */
+        return NULL;
+    }
+
+
+    
+    nth_prime = primesieve_nth_prime(n, start);
+
+    return PyLong_FromUnsignedLongLong(nth_prime);
+
+}
+
 // Module Initialization
 
 static PyMethodDef PandaPrimes_methods[] = {
     {"generate_primes", (PyCFunction)generate_primes, METH_VARARGS, "generate numpy array of primes"},
     {"generate_n_primes", (PyCFunction)generate_n_primes, METH_VARARGS, "generate numpy array of primes"},
+    {"get_nth_prime", (PyCFunction)get_nth_prime, METH_VARARGS, "Get the n^th prime"},
     {NULL, NULL, 0, NULL}};
 
 static PyModuleDef PandaPrimes_module = {
