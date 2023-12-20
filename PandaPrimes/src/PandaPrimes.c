@@ -353,12 +353,44 @@ static PyObject *get_nth_prime(PyObject *self,PyObject *args)
 
 }
 
+static PyObject *count_primes(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, primes_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function only takes two arguments."); /* code */
+        return NULL;
+    }
+
+    primes_count = primesieve_count_primes(start, stop);
+
+    return PyLong_FromUnsignedLongLong(primes_count);
+}
+
 // Module Initialization
 
 static PyMethodDef PandaPrimes_methods[] = {
     {"generate_primes", (PyCFunction)generate_primes, METH_VARARGS, "generate numpy array of primes"},
     {"generate_n_primes", (PyCFunction)generate_n_primes, METH_VARARGS, "generate numpy array of primes"},
     {"get_nth_prime", (PyCFunction)get_nth_prime, METH_VARARGS, "Get the n^th prime"},
+    {"count_primes", (PyCFunction)count_primes, METH_VARARGS, "Count primes"},
     {NULL, NULL, 0, NULL}};
 
 static PyModuleDef PandaPrimes_module = {
