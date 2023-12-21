@@ -96,7 +96,7 @@ static PyTypeObject primes_rangeType = {
     .tp_itemsize = 0,
     .tp_dealloc = (destructor)primes_range_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = "`primes_range` object is an object like Python's built-in range but iterates only over prime numbers.",
+    .tp_doc = "`primes_range` object is an object like Python's built-in range but iterates over prime numbers.",
     .tp_iter = (getiterfunc)primes_range_iter,
     .tp_iternext = (iternextfunc)primes_range_next,
     .tp_methods = primes_range_methods,
@@ -341,7 +341,7 @@ static PyObject *get_nth_prime(PyObject *self,PyObject *args)
     }
     else
     {
-        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function only takes two arguments."); /* code */
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
         return NULL;
     }
 
@@ -375,7 +375,7 @@ static PyObject *count_primes(PyObject *self, PyObject *args)
     }
     else
     {
-        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function only takes two arguments."); /* code */
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
         return NULL;
     }
 
@@ -384,6 +384,66 @@ static PyObject *count_primes(PyObject *self, PyObject *args)
     return PyLong_FromUnsignedLongLong(primes_count);
 }
 
+PyObject *count_twins(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, twins_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
+        return NULL;
+    }
+    twins_count = primesieve_count_twins(start, stop);
+
+    return PyLong_FromUnsignedLongLong(twins_count);
+}
+
+PyObject *get_max_stop(PyObject *self)
+{
+    return PyLong_FromUnsignedLongLong(primesieve_get_max_stop());
+}
+
+PyObject *is_prime(PyObject *self, PyObject *args)
+{   
+    u_int64_t number;
+    if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &number))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes 1 arguments.");
+        return NULL;
+    }
+    long number_is_prime = primesieve_count_primes(number, number);
+
+    // void *primes = primesieve_generate_primes(number, number, &number_is_prime, UINT64_PRIMES);
+    // primesieve_free(primes);
+
+    // number_is_prime = primesieve_nth_prime(0, number);
+
+    PyBool_FromLong(number_is_prime);
+}
 // Module Initialization
 
 static PyMethodDef PandaPrimes_methods[] = {
@@ -391,6 +451,9 @@ static PyMethodDef PandaPrimes_methods[] = {
     {"generate_n_primes", (PyCFunction)generate_n_primes, METH_VARARGS, "generate numpy array of primes"},
     {"get_nth_prime", (PyCFunction)get_nth_prime, METH_VARARGS, "Get the n^th prime"},
     {"count_primes", (PyCFunction)count_primes, METH_VARARGS, "Count primes"},
+    {"count_twins", (PyCFunction)count_twins, METH_VARARGS, "Count twins primes"},
+    {"get_max_stop", (PyCFunction)get_max_stop, METH_NOARGS, "Get the max prime"},
+    {"is_prime", (PyCFunction)is_prime, METH_VARARGS, "Get the max prime"},
     {NULL, NULL, 0, NULL}};
 
 static PyModuleDef PandaPrimes_module = {
