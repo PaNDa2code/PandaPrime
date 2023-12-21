@@ -14,5 +14,3 @@ def test_count_twins():
 
 def test_is_prime():
     assert is_prime(18446744073709551557)
-
-test_count_primes()

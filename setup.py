@@ -1,3 +1,4 @@
+
 from setuptools import Extension, setup
 import os
 
@@ -9,7 +10,6 @@ class get_numpy_include(object):
 setup(
     setup_requires = ["numpy"],
     install_requires=['setuptools',
-                      'requests',
                       'numpy>=1.26.0'],
     packages=["PandaPrimes"],
     package_dir={'PandaPrimes': 'PandaPrimes'},
@@ -17,7 +17,7 @@ setup(
         Extension(
             name="PandaPrimes.PandaPrimes",
              sources=["PandaPrimes/src/PandaPrimes.c"],
-             libraries=["primesieve"],  # Specify the library to link against
+             libraries=["primesieve"],
              include_dirs=[get_numpy_include()],
              
         )
