@@ -414,6 +414,126 @@ PyObject *count_twins(PyObject *self, PyObject *args)
     return PyLong_FromUnsignedLongLong(twins_count);
 }
 
+PyObject *count_triplets(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, twins_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
+        return NULL;
+    }
+    twins_count = primesieve_count_triplets(start, stop);
+
+    return PyLong_FromUnsignedLongLong(twins_count);
+}
+
+PyObject *count_sextuplets(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, twins_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
+        return NULL;
+    }
+    twins_count = primesieve_count_sextuplets(start, stop);
+
+    return PyLong_FromUnsignedLongLong(twins_count);
+}
+
+PyObject *count_quintuplets(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, twins_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
+        return NULL;
+    }
+    twins_count = primesieve_count_quintuplets(start, stop);
+
+    return PyLong_FromUnsignedLongLong(twins_count);
+}
+
+PyObject *count_quadruplets(PyObject *self, PyObject *args)
+{
+    u_int64_t start, stop, twins_count;
+    if (PyTuple_Size(args) == 2)
+    {
+        if (!PyArg_ParseTuple(args, "KK", &start, &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+    }
+    else if (PyTuple_Size(args) == 1)
+    {
+        if (!PyArg_ParseTuple(args, "K", &stop))
+        {
+            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
+            return NULL;
+        }
+        start = 0;
+    }
+    else
+    {
+        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes two arguments.");
+        return NULL;
+    }
+    twins_count = primesieve_count_quadruplets(start, stop);
+
+    return PyLong_FromUnsignedLongLong(twins_count);
+}
+
 PyObject *get_max_stop(PyObject *self)
 {
     return PyLong_FromUnsignedLongLong(primesieve_get_max_stop());
@@ -452,6 +572,10 @@ static PyMethodDef PandaPrimes_methods[] = {
     {"get_nth_prime", (PyCFunction)get_nth_prime, METH_VARARGS, "Get the n^th prime"},
     {"count_primes", (PyCFunction)count_primes, METH_VARARGS, "Count primes"},
     {"count_twins", (PyCFunction)count_twins, METH_VARARGS, "Count twins primes"},
+    {"count_triplets", (PyCFunction)count_triplets, METH_VARARGS, "count_triplets"},
+    {"count_sextuplets", (PyCFunction)count_sextuplets, METH_VARARGS, "count_sextuplets"},
+    {"count_quadruplets", (PyCFunction)count_quadruplets, METH_VARARGS, "count_quadruplets"},
+    {"count_quintuplets", (PyCFunction)count_quintuplets, METH_VARARGS, "count_quintuplets"},
     {"get_max_stop", (PyCFunction)get_max_stop, METH_NOARGS, "Get the max prime"},
     {"is_prime", (PyCFunction)is_prime, METH_VARARGS, "Get the max prime"},
     {NULL, NULL, 0, NULL}};
