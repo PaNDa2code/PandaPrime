@@ -14,3 +14,10 @@ def test_count_twins():
 
 def test_is_prime():
     assert is_prime(18446744073709551557)
+
+if __name__ == "__main__":
+    test_count_primes()
+    test_count_twins()
+    test_get_nth_prime()
+    test_is_prime()
+    

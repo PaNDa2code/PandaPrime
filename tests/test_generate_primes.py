@@ -32,4 +32,3 @@ if __name__ == "__main__":
     test_generate_primes()
     test_n_generate_primes()
     generation_performance()
-    print(_PRIME_LIST())
