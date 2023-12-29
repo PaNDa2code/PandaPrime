@@ -81,9 +81,12 @@ panda_primes_ext = Extension(
 
 setup(
     version="0.0.3",
-    cmdclass={'build_ext': BuildDependenciesCommand},
-    packages=find_packages(),
-    ext_modules=[panda_primes_ext],
+    setup_requires = ["numpy"],
+    install_requires=['setuptools',
+                      'numpy>=1.26.0'],
+    packages=["PandaPrimes"],
+    package_dir={'PandaPrimes': 'PandaPrimes'},
+    ext_modules=[PandaPrimes_ext],
     project_urls={
         "Source": "https://github.com/PaNDa2code/PandaPrimes",
     },
