@@ -8,17 +8,22 @@ import io
 import shutil
 import pip
 
+class get_numpy_include(object):
+    def __str__(self):
+        import numpy
+        return numpy.get_include()
+
 class BuildDependenciesCommand(build_ext):
     def run(self):
         self.install_dependencies()
-        from numpy import get_include
-        self.include_dirs.append(get_include())
         super().run()
 
     def install_dependencies(self):
-        result = pip.main(["install", "setuptools", "numpy>=1.26.0", "cmake"])
-        if result != 0:
+        dependencies = ["setuptools", "numpy", "cmake"]
+        result = subprocess.run(["pip", "install"] + dependencies, check=True)
+        if result.returncode != 0:
             raise RuntimeError("Failed to install dependencies.")
+
 
 class PrimesieveBuilder:
     def download_primesieve(self):
@@ -73,14 +78,14 @@ PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=["PandaPrimes/src/PandaPrimes.c"],
     libraries=["stdc++",],
-    include_dirs=[primesieve_include],
+    include_dirs=[primesieve_include, get_numpy_include()],
     extra_objects=[libprimesieve_a],
     language="c",
     extra_compile_args=["-w"],
 )
 
 setup(
-    version="0.0.3",
+    version="0.0.4",
     setup_requires = ["numpy"],
     install_requires=['setuptools',
                       'numpy>=1.26.0'],

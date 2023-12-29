@@ -13,5 +13,4 @@ RUN apt install cmake -y
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip
 RUN python setup.py sdist
-RUN pip install ./dist/PandaPrimes-0.0.2.tar.gz
-
+RUN pip install ./dist/PandaPrimes-0.0.4.tar.gz
