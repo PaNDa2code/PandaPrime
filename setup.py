@@ -1,19 +1,24 @@
-from setuptools import Extension, setup
+from setuptools import setup, Extension, find_packages
+from setuptools.command.build_ext import build_ext
 import os
+import subprocess
+from urllib import request
 import zipfile
 import io
-import subprocess
 import shutil
-from urllib import request
+import pip
 
-def install_dependencies():
-    subprocess.run(["pip", "install", "setuptools", "numpy>=1.26.0", "cmake"])
+class BuildDependenciesCommand(build_ext):
+    def run(self):
+        self.install_dependencies()
+        from numpy import get_include
+        self.include_dirs.append(get_include())
+        super().run()
 
-install_dependencies()
-
-def get_numpy_include():
-    from numpy import get_include
-    return get_include()
+    def install_dependencies(self):
+        result = pip.main(["install", "setuptools", "numpy>=1.26.0", "cmake"])
+        if result != 0:
+            raise RuntimeError("Failed to install dependencies.")
 
 class PrimesieveBuilder:
     def download_primesieve(self):
@@ -33,14 +38,8 @@ class PrimesieveBuilder:
         return os.path.join(os.getcwd(), extract_to, common_prefix)
 
     def build_primesieve(self):
-        if os.path.isfile("/home/panda/code/c-python-api/PandaPrime/primesieve/primesieve-master/lib/libprimesieve.a"):
-            return {
-            "libprimesieve.a":"/home/panda/code/c-python-api/PandaPrime/primesieve/primesieve-master/lib/libprimesieve.a",
-            "include":os.path.join("/home/panda/code/c-python-api/PandaPrime/primesieve/primesieve-master/","include"),
-            "lib":"/home/panda/code/c-python-api/PandaPrime/primesieve/primesieve-master/lib/",
-        }
         cmake_build_args = ["--parallel"]
-        cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON","-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
+        cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
         path = os.getcwd()
         primesieve_path = self.unzip_file(self.download_primesieve(), "primesieve")
         lib_path = os.path.join(primesieve_path, "lib")
@@ -56,12 +55,10 @@ class PrimesieveBuilder:
         libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
         assert os.path.isfile(libprimesieve_a)
         return {
-            "libprimesieve.a":libprimesieve_a,
-            "include":os.path.join(primesieve_path,"include"),
-            "lib":lib_path,
+            "libprimesieve.a": libprimesieve_a,
+            "include": os.path.join(primesieve_path, "include"),
+            "lib": lib_path,
         }
-
-
 
 builder = PrimesieveBuilder()
 dirs = builder.build_primesieve()
@@ -76,22 +73,16 @@ panda_primes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=["PandaPrimes/src/PandaPrimes.c"],
     libraries=["stdc++",],
-    include_dirs=[get_numpy_include(),primesieve_include],  
+    include_dirs=[primesieve_include],
     extra_objects=[libprimesieve_a],
     language="c",
-    extra_compile_args=["-w"]
-    
+    extra_compile_args=["-w"],
 )
 
 setup(
-    version="0.0.2",
-    setup_requires=[
-        "setuptools",
-        "numpy>=1.26.0",
-        "cmake",
-    ],
-    packages=["PandaPrimes"],
-    package_dir={"PandaPrimes": "PandaPrimes"},
+    version="0.0.3",
+    cmdclass={'build_ext': BuildDependenciesCommand},
+    packages=find_packages(),
     ext_modules=[panda_primes_ext],
     project_urls={
         "Source": "https://github.com/PaNDa2code/PandaPrimes",
