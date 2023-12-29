@@ -1,29 +1,15 @@
-from setuptools import setup, Extension, find_packages
-from setuptools.command.build_ext import build_ext
+from setuptools import setup, Extension
 import os
 import subprocess
 from urllib import request
 import zipfile
 import io
 import shutil
-import pip
 
 class get_numpy_include(object):
     def __str__(self):
         import numpy
         return numpy.get_include()
-
-class BuildDependenciesCommand(build_ext):
-    def run(self):
-        self.install_dependencies()
-        super().run()
-
-    def install_dependencies(self):
-        dependencies = ["setuptools", "numpy", "cmake"]
-        result = subprocess.run(["pip", "install"] + dependencies, check=True)
-        if result.returncode != 0:
-            raise RuntimeError("Failed to install dependencies.")
-
 
 class PrimesieveBuilder:
     def download_primesieve(self):

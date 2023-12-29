@@ -7,10 +7,13 @@ WORKDIR /PandaPrimes
 # Copy the current directory contents into the container at /PandaPrimes
 COPY . /PandaPrimes
 
-RUN apt update
-RUN apt install cmake -y
+# Install dependencies and packages
+RUN apt update && \
+    apt install -y cmake && \
+    pip install --upgrade pip && \
+    pip install ./dist/PandaPrimes-0.0.4.tar.gz
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --upgrade pip
-RUN python setup.py sdist
-RUN pip install ./dist/PandaPrimes-0.0.4.tar.gz
+# Set any additional configuration or environment variables if needed
+
+# Specify the default command to run on container start
+CMD ["bin/bash"]
