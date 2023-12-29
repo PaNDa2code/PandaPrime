@@ -1,18 +1,18 @@
-# PandaPrime
+# PandaPrimes
 
-PandaPrime is a CPython extension under active development, leveraging the powerful [primesieve](https://github.com/kimwalisch/primesieve) library to significantly enhance prime number generation performance.
+PandaPrimes is a CPython extension under active development, leveraging the powerful [primesieve](https://github.com/kimwalisch/primesieve) library to significantly enhance prime number generation performance.
 
 ## Usage
 
 ### Iterating Over Primes
-Iterating through primes is a common practice, providing a memory-efficient way to work with prime numbers. PandaPrime introduces two main functionalities for iterating through primes.
+Iterating through primes is a common practice, providing a memory-efficient way to work with prime numbers. PandaPrimes introduces two main functionalities for iterating through primes.
 
 #### `primes_range`
 
 The `primes_range` function enables seamless iteration through prime numbers within a specified range.
 
 ```python
-from PandaPrime import primes_range
+from PandaPrimes import primes_range
 
 primes_count = 0
 
@@ -36,7 +36,7 @@ for prime in primes_range(10**6, 5*10**6):
 The `generate_primes` function creates a NumPy array containing prime numbers within a specified range.
 
 ```python
-from PandaPrime import generate_primes
+from PandaPrimes import generate_primes
 
 # Example: Generate an array of primes from 2 to 1e10
 primes_array = generate_primes(10**10)
@@ -47,7 +47,7 @@ primes_array = generate_primes(10**10)
 The `generate_n_primes` function generates a NumPy array of the first `n` prime numbers.
 
 ```python
-from PandaPrime import generate_n_primes
+from PandaPrimes import generate_n_primes
 
 # Example: Generate an array containing the first million prime numbers
 primes_array = generate_n_primes(10**6)
@@ -55,7 +55,14 @@ primes_array = generate_n_primes(10**6)
 
 ## Installation
 
-As of now, PandaPrime is still under development. Installation instructions will be provided upon release.
+As of now, PandaPrimes is still under development.
+
+- for now you can try it by installing primesieve library on you machine first. [install primesieve](https://github.com/kimwalisch/primesieve#installation)
+
+- after that you can simply install PandaPrimes using pip.
+```bash
+pip install PandaPrimes
+```
 
 ## Contributing
 

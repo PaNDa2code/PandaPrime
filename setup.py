@@ -19,7 +19,7 @@ PandaPrimes_ext = Extension(
         )
 
 setup(
-    version="0.0.0",
+    version="0.0.2",
     setup_requires = ["numpy"],
     install_requires=['setuptools',
                       'numpy>=1.26.0'],
