@@ -69,7 +69,7 @@ libprimesieve_path = dirs["lib"]
 with open("README.md", "r") as readme_file:
     README = readme_file.read()
 
-panda_primes_ext = Extension(
+PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=["PandaPrimes/src/PandaPrimes.c"],
     libraries=["stdc++",],
