@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: build and upload manylinux wheels
-        uses:  Niraj-Kamdar/manylinux-wheel-builder@master
+        uses: Niraj-Kamdar/manylinux-wheel-builder@v1
         # default will be all latest python versions from 3.6+
         # You can specify comma separated string of different python version
         # for which you want to build wheels Ex: "3.6, 3.7, 3.8" (excludes 3.9)
