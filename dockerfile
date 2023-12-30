@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11
+FROM quay.io/pypa/manylinux_2_24_x86_64:latest
 
 # Set the working directory to /PandaPrimes
 WORKDIR /PandaPrimes
@@ -8,12 +8,8 @@ WORKDIR /PandaPrimes
 COPY . /PandaPrimes
 
 # Install dependencies and packages
-RUN apt update && \
-    apt install -y cmake && \
-    pip install --upgrade pip && \
-    pip install ./dist/PandaPrimes-0.0.4.tar.gz
-
-# Set any additional configuration or environment variables if needed
-
-# Specify the default command to run on container start
-CMD ["bin/bash"]
+RUN apt update
+    # apt install -y cmake python3 python3-pip && \
+    # pip3 install --upgrade pip && \
+    # python3 setup.py sdist
+RUN python3 setup.py sdist_build

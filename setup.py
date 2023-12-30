@@ -18,7 +18,7 @@ class PrimesieveBuilder:
             with request.urlopen(url) as response:
                 return response.read()
         except Exception as e:
-            print(f"Error downloading primesieve: {e}")
+            print("Error downloading primesieve:{}".format(e))
             return None
         
     def unzip_file(self, zip_content, extract_to):
@@ -37,7 +37,7 @@ class PrimesieveBuilder:
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
 
-        config_command = ["cmake", f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
+        config_command = ["cmake", "-B {}".format(lib_path), "-S {}".format(primesieve_path)] + cmake_config_args
         subprocess.run(config_command)
 
         build_command = ["cmake", "--build", lib_path] + cmake_build_args
@@ -71,10 +71,10 @@ PandaPrimes_ext = Extension(
 )
 
 setup(
-    version="0.0.4",
-    setup_requires = ["numpy"],
-    install_requires=['setuptools',
-                      'numpy>=1.26.0'],
+    name="PandaPrimes",
+    version="0.0.5",
+    setup_requires=["numpy"],
+    install_requires=['setuptools', 'numpy'],
     packages=["PandaPrimes"],
     package_dir={'PandaPrimes': 'PandaPrimes'},
     ext_modules=[PandaPrimes_ext],
