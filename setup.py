@@ -83,7 +83,7 @@ PandaPrimes_ext = Extension(
 
 setup(
     name="PandaPrimes",
-    version="0.0.5",
+    version="0.0.6",
     setup_requires=["numpy", "cmake"],
     install_requires=['setuptools', 'numpy', 'cmake'],
     packages=["PandaPrimes"],
