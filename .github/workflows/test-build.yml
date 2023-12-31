@@ -1,11 +1,9 @@
 name: Python Package Build and Test
 
-on:
-  workflow_dispatch:
-    
+on:    
   push:
     branches:
-      - main  # Change this to the branch you want to trigger the workflow on
+      - master
 
 jobs:
   build:
@@ -18,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8  # Change this to the Python version you need
+        python-version: 3.8
 
     - name: Install dependencies
       run: |
@@ -35,7 +33,7 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m pytest
+        python tests/.*py
 
     - name: Clean up
       run: |

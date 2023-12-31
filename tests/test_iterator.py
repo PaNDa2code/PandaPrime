@@ -24,4 +24,5 @@ def test_Iterator():
     assert it.next_prime() == 4180410070769835979
     assert it.next_prime() == 4180410070769836039
 
-_PRIME_LIST()
+if __name__ == "__main__":
+    test_Iterator()
