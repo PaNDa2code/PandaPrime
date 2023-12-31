@@ -33,7 +33,11 @@ jobs:
 
     - name: Run tests
       run: |
+        pwd
+        ls
         cd tests
+        pwd
+        ls
         python *.py
       working-directory: ${{ github.workspace }}
 
