@@ -41,6 +41,7 @@ class PrimesieveBuilder:
         
         assert os.path.isfile(CMAKE)
         
+        
         cmake_build_args = ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
         path = os.getcwd()
@@ -72,7 +73,9 @@ class Build_ext(build_ext):
         libprimesieve_path = dirs["lib"]
 
         self.include_dirs.append(primesieve_include)
-        self.extra_objects.append(libprimesieve_a)
+        self.extensions[0].extra_objects.append(libprimesieve_a)
+
+        super().run()
 
 
 with open("README.md", "r") as readme_file:
@@ -85,6 +88,7 @@ PandaPrimes_ext = Extension(
     include_dirs=[get_numpy_include()],
     language="c",
     extra_compile_args=["-w"],
+    # extra_objects=[libprimesieve_a]
 )
 
 setup(
@@ -103,4 +107,5 @@ setup(
     description="A Python extension module for finding primes using C",
     long_description=README,
     long_description_content_type="text/markdown",
+    cmdclass={"build_ext":Build_ext},
 )
