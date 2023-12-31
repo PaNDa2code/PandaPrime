@@ -29,6 +29,17 @@ class PrimesieveBuilder:
         return os.path.join(os.getcwd(), extract_to, common_prefix)
 
     def build_primesieve(self):
+        from cmake import CMAKE_BIN_DIR
+
+        OS = os.uname()[0]
+
+        if OS == "Windows":
+            CMAKE = os.path.join(CMAKE_BIN_DIR, "cmake.exe")
+        else:
+            CMAKE = os.path.join(CMAKE_BIN_DIR, "cmake")
+        
+        assert os.path.isfile(CMAKE)
+        
         cmake_build_args = ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
         path = os.getcwd()
@@ -37,10 +48,10 @@ class PrimesieveBuilder:
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
 
-        config_command = ["cmake", "-B {}".format(lib_path), "-S {}".format(primesieve_path)] + cmake_config_args
+        config_command = [CMAKE, "-B {}".format(lib_path), "-S {}".format(primesieve_path)] + cmake_config_args
         subprocess.run(config_command)
 
-        build_command = ["cmake", "--build", lib_path] + cmake_build_args
+        build_command = [CMAKE, "--build", lib_path] + cmake_build_args
         subprocess.run(build_command)
 
         libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
@@ -73,8 +84,8 @@ PandaPrimes_ext = Extension(
 setup(
     name="PandaPrimes",
     version="0.0.5",
-    setup_requires=["numpy"],
-    install_requires=['setuptools', 'numpy'],
+    setup_requires=["numpy", "cmake"],
+    install_requires=['setuptools', 'numpy', 'cmake'],
     packages=["PandaPrimes"],
     package_dir={'PandaPrimes': 'PandaPrimes'},
     ext_modules=[PandaPrimes_ext],
