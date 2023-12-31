@@ -1,4 +1,5 @@
 from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
 import os
 import subprocess
 from urllib import request
@@ -62,11 +63,17 @@ class PrimesieveBuilder:
             "lib": lib_path,
         }
 
-builder = PrimesieveBuilder()
-dirs = builder.build_primesieve()
-libprimesieve_a = dirs["libprimesieve.a"]
-primesieve_include = dirs["include"]
-libprimesieve_path = dirs["lib"]
+class Build_ext(build_ext):
+    def run(self):
+        builder = PrimesieveBuilder()
+        dirs = builder.build_primesieve()
+        libprimesieve_a = dirs["libprimesieve.a"]
+        primesieve_include = dirs["include"]
+        libprimesieve_path = dirs["lib"]
+
+        self.include_dirs.append(primesieve_include)
+        self.extra_objects.append(libprimesieve_a)
+
 
 with open("README.md", "r") as readme_file:
     README = readme_file.read()
@@ -75,8 +82,7 @@ PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=["PandaPrimes/src/PandaPrimes.c"],
     libraries=["stdc++",],
-    include_dirs=[primesieve_include, get_numpy_include()],
-    extra_objects=[libprimesieve_a],
+    include_dirs=[get_numpy_include()],
     language="c",
     extra_compile_args=["-w"],
 )
