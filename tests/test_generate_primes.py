@@ -2,9 +2,10 @@ from PandaPrimes import generate_primes, generate_n_primes
 import numpy
 from time import time
 from sys import getsizeof
+from os.path import join
 
 def _PRIME_LIST():
-    path_to_primes = "/".join(__file__.split("/")[:-1]) + "/primes.txt"
+    path_to_primes = join("/".join(__file__.split("/")[:-1]), "primes.txt")
     with open(path_to_primes,"r") as file:
         primes = numpy.array(list(map(int, file.read().split(", "))))
     return primes
