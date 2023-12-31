@@ -33,7 +33,8 @@ jobs:
 
     - name: Run tests
       run: |
-        python tests/.*py
+      working-directory: tests
+        python *.py
 
     - name: Clean up
       run: |
