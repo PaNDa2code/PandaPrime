@@ -33,8 +33,10 @@ jobs:
 
     - name: Run tests
       run: |
-      working-directory: tests
+        cd tests
         python *.py
+      working-directory: ${{ github.workspace }}/PandaPrimes/PandaPrimes
+
 
     - name: Clean up
       run: |
