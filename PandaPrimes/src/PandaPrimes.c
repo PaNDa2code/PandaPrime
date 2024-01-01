@@ -208,8 +208,7 @@ Pint get_int_types(u_int64_t integer)
 
 static PyObject *generate_primes(PyObject *self, PyObject *args)
 {   
-    PyGILState_STATE gstate = PyGILState_Ensure();
-
+    // PyGILState_STATE gstate = PyGILState_Ensure();
     u_int64_t start, stop;
     size_t size;
 
@@ -219,7 +218,7 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
         if (!PyArg_ParseTuple(args, "K", &stop))
         {
             PyErr_SetString(PyExc_TypeError, "Invalid argument");
-            PyGILState_Release(gstate);
+            // PyGILState_Release(gstate);
             return NULL;
         }
     }
@@ -228,21 +227,23 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
         if (!PyArg_ParseTuple(args, "KK", &start, &stop))
         {
             PyErr_SetString(PyExc_TypeError, "Invalid arguments");
-            PyGILState_Release(gstate);
+            // PyGILState_Release(gstate);
             return NULL;
         }
     }
     else
     {
         PyErr_SetString(PyExc_TypeError, "Invalid number of arguments");
-        PyGILState_Release(gstate);
+        // PyGILState_Release(gstate);
         return NULL;
     }
 
     Pint _MyInt = get_int_types((u_int64_t)stop);
 
-    void *primes = primesieve_generate_primes(start, stop, &size, _MyInt.primesieve_int_type);
-
+    void *primes;
+    Py_BEGIN_ALLOW_THREADS
+    primes = primesieve_generate_primes(start, stop, &size, _MyInt.primesieve_int_type);
+    Py_END_ALLOW_THREADS
     npy_intp dims[1] = {size};
 
     PyObject *array = PyArray_SimpleNewFromData(1, dims, _MyInt.numpy_int_type, primes);
@@ -251,7 +252,7 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
     if (array == NULL)
     {
         PyErr_SetString(PyExc_MemoryError, "Failed to create NumPy array");
-        PyGILState_Release(gstate);
+        // PyGILState_Release(gstate);
         return NULL;
     }
 
@@ -260,7 +261,8 @@ static PyObject *generate_primes(PyObject *self, PyObject *args)
     
     // never forget these also
 
-    PyGILState_Release(gstate);
+    // PyGILState_Release(gstate);
+
     return array;
 };
 
@@ -541,6 +543,7 @@ PyObject *get_max_stop(PyObject *self)
 
 PyObject *is_prime(PyObject *self, PyObject *args)
 {   
+    
     u_int64_t number;
     if (PyTuple_Size(args) == 1)
     {

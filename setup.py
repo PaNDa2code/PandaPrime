@@ -7,11 +7,6 @@ import zipfile
 import io
 import shutil
 
-class get_numpy_include(object):
-    def __str__(self):
-        import numpy
-        return numpy.get_include()
-
 class PrimesieveBuilder:
     def download_primesieve(self):
         url = "https://codeload.github.com/kimwalisch/primesieve/zip/refs/heads/master"
@@ -32,37 +27,40 @@ class PrimesieveBuilder:
     def build_primesieve(self):
         from cmake import CMAKE_BIN_DIR
 
-        OS = os.uname()[0]
+        cmake_bin_dir = CMAKE_BIN_DIR
+        os_type = os.uname()[0]
+        
+        cmake_executable = "cmake.exe" if os_type == "Windows" else "cmake"
+        cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
+        
+        assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
 
-        if OS == "Windows":
-            CMAKE = os.path.join(CMAKE_BIN_DIR, "cmake.exe")
-        else:
-            CMAKE = os.path.join(CMAKE_BIN_DIR, "cmake")
-        
-        assert os.path.isfile(CMAKE)
-        
-        
         cmake_build_args = ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
-        path = os.getcwd()
-        primesieve_path = self.unzip_file(self.download_primesieve(), "primesieve")
+
+        current_path = os.getcwd()
+        primesieve_path = self.unzip_file(self.download_primesieve(), current_path)
         lib_path = os.path.join(primesieve_path, "lib")
+        
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
 
-        config_command = [CMAKE, "-B {}".format(lib_path), "-S {}".format(primesieve_path)] + cmake_config_args
+        config_command = [cmake_path, f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
         subprocess.run(config_command)
 
-        build_command = [CMAKE, "--build", lib_path] + cmake_build_args
+        build_command = [cmake_path, "--build", lib_path] + cmake_build_args
         subprocess.run(build_command)
 
         libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
-        assert os.path.isfile(libprimesieve_a)
+        assert os.path.isfile(libprimesieve_a), f"Couldn't find {libprimesieve_a}"
+
         return {
             "libprimesieve.a": libprimesieve_a,
             "include": os.path.join(primesieve_path, "include"),
             "lib": lib_path,
+            "primesieve": primesieve_path,
         }
+
 
 class Build_ext(build_ext):
     def run(self):
@@ -72,10 +70,19 @@ class Build_ext(build_ext):
         primesieve_include = dirs["include"]
         libprimesieve_path = dirs["lib"]
 
-        self.include_dirs.append(primesieve_include)
+        from numpy import get_include
+
+        self.include_dirs.extend([primesieve_include, get_include()])
+        
+        assert self.extensions[0].name == "PandaPrimes.PandaPrimes", "PandaPrimes exaction is not defined"
+        
+        # Add `libprimesieve.a` path to PandaPrimes_ext extra_objects list avoiding 
         self.extensions[0].extra_objects.append(libprimesieve_a)
 
         super().run()
+
+        # Delete primesieve
+        shutil.rmtree(dirs["primesieve"])
 
 
 with open("README.md", "r") as readme_file:
@@ -85,10 +92,9 @@ PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=["PandaPrimes/src/PandaPrimes.c"],
     libraries=["stdc++",],
-    include_dirs=[get_numpy_include()],
+    # include_dirs=[get_numpy_include()],
     language="c",
     extra_compile_args=["-w"],
-    # extra_objects=[libprimesieve_a]
 )
 
 setup(

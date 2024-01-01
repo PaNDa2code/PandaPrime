@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request: 
+    branches:
+      - master
 
 jobs:
   build:
@@ -33,11 +36,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pwd
-        ls
         cd tests
-        pwd
-        ls
         python *.py
       working-directory: ${{ github.workspace }}
 
