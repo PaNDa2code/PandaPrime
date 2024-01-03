@@ -1,7 +1,8 @@
 from . import PandaPrimes as _PP
 import numpy as np
+from typing import Union
 
-def generate_primes(start: int|float, end: int|float = 0) -> np.ndarray:
+def generate_primes(start: Union[int, float], end: Union[int, float] = 0) -> np.ndarray:
     """
     Generate an array of prime numbers in the specified range.
 
@@ -24,7 +25,7 @@ def generate_primes(start: int|float, end: int|float = 0) -> np.ndarray:
     start, end = int(min(start, end)), int(max(start, end))
     return _PP.generate_primes(start, end)
 
-def generate_n_primes(n: int|float, start: int = 0) -> np.ndarray:
+def generate_n_primes(n: Union[int, float], start: int = 0) -> np.ndarray:
     """
     Generate an array of the first n prime numbers.
 
@@ -43,7 +44,7 @@ def generate_n_primes(n: int|float, start: int = 0) -> np.ndarray:
     """
     return _PP.generate_n_primes(int(n), int(start))
 
-def get_nth_prime(n: int|float, start: int = 0) -> int:
+def get_nth_prime(n: Union[int, float], start: int = 0) -> int:
     """
     Get the n^th prime number.
 
@@ -62,7 +63,7 @@ def get_nth_prime(n: int|float, start: int = 0) -> int:
     """
     return _PP.get_nth_prime(int(n), int(start))
 
-def count_primes(start: int|float, stop: int|float) -> int:
+def count_primes(start: Union[int, float], stop: Union[int, float]) -> int:
     """
     Count the number of primes in the given range.
 
@@ -81,7 +82,7 @@ def count_primes(start: int|float, stop: int|float) -> int:
     """
     return _PP.count_primes(int(start), int(stop))
 
-def count_twins(start: int|float, stop: int|float) -> int:
+def count_twins(start: Union[int, float], stop: Union[int, float]) -> int:
     """
     Count the number of twin primes in the given range.
 
@@ -117,7 +118,7 @@ def get_max_stop() -> int:
     """
     return _PP.get_max_stop()
 
-def is_prime(number: int|float) -> bool:
+def is_prime(number: Union[int, float]) -> bool:
     """
     Check if a given number is a prime number.
 
