@@ -5,6 +5,5 @@ build
 .venv
 *-info
 .*
-include
 pyproject.toml
 *cache*

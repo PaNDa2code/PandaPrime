@@ -7,6 +7,8 @@ import zipfile
 import io
 import shutil
 
+debug = True
+
 class PrimesieveBuilder:
     def download_primesieve(self):
         url = "https://codeload.github.com/kimwalisch/primesieve/zip/refs/heads/master"
@@ -25,6 +27,13 @@ class PrimesieveBuilder:
         return os.path.join(os.getcwd(), extract_to, common_prefix)
 
     def build_primesieve(self):
+        if os.path.isdir(os.path.join(os.path.curdir, "primesieve-master")) and debug:
+            return {
+                "libprimesieve.a": "primesieve-master/lib/libprimesieve.a",
+                "include": "primesieve-master/include",
+                "lib": "primesieve-master/include",
+                "primesieve": "primesieve-master",
+            }
         from cmake import CMAKE_BIN_DIR
 
         cmake_bin_dir = CMAKE_BIN_DIR
@@ -82,19 +91,21 @@ class Build_ext(build_ext):
         super().run()
 
         # Delete primesieve
-        shutil.rmtree(dirs["primesieve"])
+        if not debug: shutil.rmtree(dirs["primesieve"])
 
 
 with open("README.md", "r") as readme_file:
     README = readme_file.read()
 
+sources = ["PandaPrimes/src/" + c for c in os.listdir("PandaPrimes/src") if c.endswith(".c")]
+
 PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
-    sources=["PandaPrimes/src/PandaPrimes.c"],
-    libraries=["stdc++",],
-    # include_dirs=[get_numpy_include()],
+    sources=sources,
+    libraries=["stdc++", "pthread"],
+    include_dirs=["PandaPrimes/src/include"],
     language="c",
-    extra_compile_args=["-w"],
+    extra_compile_args=[],
 )
 
 setup(
