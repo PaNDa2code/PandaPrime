@@ -116,7 +116,7 @@ setup(
     packages=["PandaPrimes"],
     package_dir={'PandaPrimes': 'PandaPrimes'},
     ext_modules=[PandaPrimes_ext],
-    package_data= {"PandaPrimes.PandaPrimes": ["PandaPrimes/src/include/*.h"]},
+    package_data= {"PandaPrimes": ["src/include/*.h"]},
     project_urls={
         "Source": "https://github.com/PaNDa2code/PandaPrimes",
     },
