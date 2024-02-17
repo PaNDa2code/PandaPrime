@@ -5,5 +5,5 @@ build
 .venv
 *-info
 .*
-pyproject.toml
 *cache*
+dist
