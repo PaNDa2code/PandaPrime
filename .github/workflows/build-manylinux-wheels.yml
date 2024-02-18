@@ -35,7 +35,7 @@ jobs:
       - name: Install twine and upload the manylinux wheels to PyPI
         run: |
           pip3 install twine
-          python -m twine upload --repository-url https://pypi.org/project/PandaPrimes/ wheelhouse/*
+          python -m twine upload --repository-url https://upload.pypi.org/legacy/ wheelhouse/*
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
