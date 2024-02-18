@@ -50,6 +50,8 @@ class PrimesieveBuilder:
 
         current_path = os.getcwd()
         primesieve_path = self.unzip_file(self.download_primesieve(), current_path)
+        subprocess.run("ls")
+        assert os.path.isdir(primesieve_path), f"The directory '{primesieve_path}' does not exist or is not a valid directory."
         lib_path = os.path.join(primesieve_path, "lib")
         
         shutil.rmtree(lib_path, ignore_errors=True)
