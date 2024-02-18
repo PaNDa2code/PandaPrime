@@ -34,16 +34,16 @@ class PrimesieveBuilder:
                 "lib": "primesieve-master/include",
                 "primesieve": "primesieve-master",
             }
-        # from cmake import CMAKE_BIN_DIR
+        from cmake import CMAKE_BIN_DIR
 
-        # cmake_bin_dir = CMAKE_BIN_DIR
+        cmake_bin_dir = CMAKE_BIN_DIR
         os_type = os.uname()[0]
         
         cmake_executable = "cmake.exe" if os_type == "Windows" else "cmake"
-        # cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
-        cmake_path = "cmake"
+        cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
+        # cmake_path = "cmake"
         
-        # assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
+        assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
 
         cmake_build_args = ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
