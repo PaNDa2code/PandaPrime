@@ -4,6 +4,5 @@ test.*
 build
 .venv
 *-info
-.*
 *cache*
 dist

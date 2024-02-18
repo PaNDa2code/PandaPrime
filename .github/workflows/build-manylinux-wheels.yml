@@ -1,0 +1,33 @@
+name: Build manylinux wheels
+# description: Build manylinux wheels for multiple CPython versions
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build-wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Start Docker container
+        run: |
+          docker pull quay.io/pypa/manylinux_2_28_x86_64
+          docker run --name build-container -d quay.io/pypa/manylinux_2_28_x86_64 tail -f /dev/null
+
+      - name: Copy the repo into the container
+        run: docker cp . build-container:/PandaPrimes/
+
+      - name: Build wheels
+        run: docker exec build-container bash /PandaPrimes/build_wheels/manylinux/build_wheels.sh
+
+      - name: Copy wheels from the container
+        run: docker cp build-container:/wheels/wheelhouse/ wheelhouse/
+
+      - name: List the built wheels
+        run: ls wheelhouse/
