@@ -1,0 +1,38 @@
+name: cibuildwheel
+
+on:
+  push:
+    branches:
+      - actions_dev
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-10.15, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Install CMake
+        if: matrix.os != 'windows-latest'  # CMake is pre-installed on Windows runners
+        run: |
+          sudo apt-get update && sudo apt-get install -y cmake  # For Ubuntu
+          brew install cmake  # For macOS
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==1.11.0
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+      - name: List builded wheels
+        run: ls wheelhouse

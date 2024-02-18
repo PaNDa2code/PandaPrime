@@ -40,7 +40,8 @@ class PrimesieveBuilder:
         os_type = os.uname()[0]
         
         cmake_executable = "cmake.exe" if os_type == "Windows" else "cmake"
-        cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
+        # cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
+        cmake_path = "cmake"
         
         assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
 
