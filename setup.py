@@ -7,7 +7,7 @@ import zipfile
 import io
 import shutil
 
-debug = True
+debug = False
 
 class PrimesieveBuilder:
     def download_primesieve(self):
@@ -34,9 +34,9 @@ class PrimesieveBuilder:
                 "lib": "primesieve-master/include",
                 "primesieve": "primesieve-master",
             }
-        from cmake import CMAKE_BIN_DIR
+        # from cmake import CMAKE_BIN_DIR
 
-        cmake_bin_dir = CMAKE_BIN_DIR
+        # cmake_bin_dir = CMAKE_BIN_DIR
         os_type = os.uname()[0]
         
         cmake_executable = "cmake.exe" if os_type == "Windows" else "cmake"

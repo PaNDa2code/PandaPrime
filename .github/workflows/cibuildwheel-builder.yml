@@ -1,11 +1,11 @@
 name: cibuildwheel
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - actions_dev
             - master
-    workflow_dispatch:
 
 jobs:
   build:
