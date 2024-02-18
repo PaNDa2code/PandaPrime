@@ -43,7 +43,7 @@ class PrimesieveBuilder:
         # cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
         cmake_path = "cmake"
         
-        assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
+        # assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
 
         cmake_build_args = ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
