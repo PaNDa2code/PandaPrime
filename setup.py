@@ -58,9 +58,11 @@ class PrimesieveBuilder:
         os.makedirs(lib_path)
 
         config_command = [cmake_path, f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
+        print(config_command)
         subprocess.run(config_command)
 
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
+        print(build_command)
         subprocess.run(build_command)
 
         libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
