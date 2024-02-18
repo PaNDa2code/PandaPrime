@@ -55,7 +55,8 @@ class PrimesieveBuilder:
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
 
-        config_command = [cmake_path, f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
+        # config_command = [cmake_path, f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
+        config_command = [cmake_path, "-B", lib_path, "-S", primesieve_path] + cmake_config_args
         subprocess.run(config_command)
 
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
