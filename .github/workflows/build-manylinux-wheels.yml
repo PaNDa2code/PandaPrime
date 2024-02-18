@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: build-wheels
+  build-and-upload:
+    name: build-and-upload-wheels
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -31,3 +31,12 @@ jobs:
 
       - name: List the built wheels
         run: ls wheelhouse/
+      
+      - name: Install twine and upload the manylinux wheels to PyPI
+        run: |
+          pip3 install twine
+          python -m twine upload --repository-url https://pypi.org/project/PandaPrimes/ wheelhouse/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
