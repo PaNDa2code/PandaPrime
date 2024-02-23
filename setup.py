@@ -62,7 +62,7 @@ class PrimesieveBuilder:
         subprocess.run(config_command)
 
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
-        cmake_output = subprocess.run(build_command, capture_output=True, text=True)
+        subprocess.run(build_command)
         
         if platform == 'Windows':
             libprimesieve_a = os.path.join(lib_path, "Release", "primesieve.lib")
@@ -92,7 +92,7 @@ class Build_ext(build_ext):
             primesieve_include.replace("/","\\")
             libprimesieve_path.replace("/","\\")
 
-            
+
         print(libprimesieve_lib)
         print(primesieve_include)
         print(libprimesieve_path)
