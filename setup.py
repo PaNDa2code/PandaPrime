@@ -62,13 +62,13 @@ class PrimesieveBuilder:
         subprocess.run(config_command)
 
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
-        subprocess.run(build_command)
+        cmake_output = subprocess.run(build_command, capture_output=True, text=True)
         
         if platform == 'Windows':
             libprimesieve_a = os.path.join(lib_path, "Release", "primesieve.lib")
         else:
             libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
-        
+                
         assert os.path.isfile(libprimesieve_a), f"Couldn't find {libprimesieve_a}"
 
         return {
@@ -84,9 +84,18 @@ class Build_ext(build_ext):
         builder = PrimesieveBuilder()
         dirs = builder.build_primesieve()
         libprimesieve_lib = dirs["primesieve_lib"]
-        print(libprimesieve_lib)
         primesieve_include = dirs["include"]
         libprimesieve_path = dirs["lib"]
+
+        if platform == "Windows":
+            libprimesieve_lib.replace("/","\\")
+            primesieve_include.replace("/","\\")
+            libprimesieve_path.replace("/","\\")
+
+            
+        print(libprimesieve_lib)
+        print(primesieve_include)
+        print(libprimesieve_path)
 
         from numpy import get_include
 
