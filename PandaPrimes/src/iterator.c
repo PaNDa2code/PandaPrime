@@ -4,6 +4,8 @@
 
 // #include "iterator.h"
 
+#define u_int64_t unsigned long long
+
 typedef struct
 {
     PyObject_HEAD

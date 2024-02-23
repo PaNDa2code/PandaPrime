@@ -5,6 +5,7 @@
 
 #include "primes-range.h"
 
+#define u_int64_t unsigned long long
 
 static PyObject *primes_range_new(PyTypeObject *type, PyObject *args, PyObject *kwarg)
 {

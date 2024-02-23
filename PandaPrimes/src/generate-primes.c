@@ -6,6 +6,8 @@
 
 #include "generate-primes.h"
 
+#define u_int64_t unsigned long long
+
 typedef struct
 {
     int numpy_int_type, primesieve_int_type;

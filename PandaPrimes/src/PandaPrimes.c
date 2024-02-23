@@ -9,8 +9,7 @@
 #include "iterator.h"
 #include "generate-primes.h"
 
-
-
+#define u_int64_t unsigned long long
 
 static PyObject *get_nth_prime(PyObject *self,PyObject *args)
 {
@@ -234,30 +233,33 @@ PyObject *get_max_stop(PyObject *self)
 
 PyObject *is_prime(PyObject *self, PyObject *args)
 {   
-    
+    PyObject *arg;
     u_int64_t number;
-    if (PyTuple_Size(args) == 1)
+    
+    if (!PyArg_ParseTuple(args, "O", &arg))
     {
-        if (!PyArg_ParseTuple(args, "K", &number))
-        {
-            PyErr_SetString(PyErr_BadArgument, "Invalid arguments ==> should int type.");
-            return NULL;
-        }
-    }
-    else
-    {
-        PyErr_SetString(PyErr_BadArgument, "Invalid number of arguments ==> function takes 1 arguments.");
+        PyErr_SetString(PyExc_ValueError, "Invalid argument.");
         return NULL;
     }
+
+    if (!PyLong_Check(arg))
+    {
+        PyErr_Format(PyExc_ValueError, "Invalid argument type. Expected int, found %s.", Py_TYPE(arg)->tp_name);
+        return NULL;
+    }
+    
+    number = PyLong_AsUnsignedLongLong(arg);
+    if (number == (unsigned long long)-1 && PyErr_Occurred())
+    {
+        // Failed to convert PyObject to unsigned long long
+        return NULL;
+    }
+    
     long number_is_prime = primesieve_count_primes(number, number);
-
-    // void *primes = primesieve_generate_primes(number, number, &number_is_prime, UINT64_PRIMES);
-    // primesieve_free(primes);
-
-    // number_is_prime = primesieve_nth_prime(0, number);
-
-    PyBool_FromLong(number_is_prime);
+    
+    return PyBool_FromLong(number_is_prime);
 }
+
 // Module Initialization
 
 static PyMethodDef PandaPrimes_methods[] = {

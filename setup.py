@@ -6,8 +6,10 @@ from urllib import request
 import zipfile
 import io
 import shutil
+from platform import system
 
 debug = False
+platform = system()
 
 class PrimesieveBuilder:
     def download_primesieve(self):
@@ -29,47 +31,48 @@ class PrimesieveBuilder:
     def build_primesieve(self):
         if os.path.isdir(os.path.join(os.path.curdir, "primesieve-master")) and debug:
             return {
-                "libprimesieve.a": "primesieve-master/lib/libprimesieve.a",
-                "include": "primesieve-master/include",
-                "lib": "primesieve-master/include",
+                "primesieve_lib": os.path.join("primesieve-master", "lib", "Release", "primesieve.lib" if platform == "Windows" else "primesieve.a"),
+                "include": os.path.join("primesieve-master", "include"),
+                "lib": os.path.join("primesieve-master", "include"),
                 "primesieve": "primesieve-master",
             }
-        # from cmake import CMAKE_BIN_DIR
-
-        # cmake_bin_dir = CMAKE_BIN_DIR
-        os_type = os.uname()[0]
         
-        cmake_executable = "cmake.exe" if os_type == "Windows" else "cmake"
+        # from cmake import CMAKE_BIN_DIR as cmake_bin_dir
+
+        if platform == 'Windows':
+            cmake_executable = "cmake.exe"
+        else:
+            cmake_executable = "cmake"
+
         # cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
-        cmake_path = "cmake"
+        cmake_path = cmake_executable
+        
         
         # assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
 
-        cmake_build_args = ["--parallel"]
+        cmake_build_args = ["--parallel", "--config", "Release"] if platform == 'Windows' else ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
-
+        
         current_path = os.getcwd()
         primesieve_path = self.unzip_file(self.download_primesieve(), current_path)
-        subprocess.run("ls primesieve-master")
-        assert os.path.isdir(primesieve_path), f"The directory '{primesieve_path}' does not exist or is not a valid directory."
         lib_path = os.path.join(primesieve_path, "lib")
-        
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
-
-        config_command = [cmake_path, f"-B {lib_path}", f"-S {primesieve_path}"] + cmake_config_args
-        print(config_command)
+        config_command = [cmake_path, f"-B{lib_path}", f"-S{primesieve_path}"] + cmake_config_args
         subprocess.run(config_command)
 
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
-        print(build_command)
         subprocess.run(build_command)
-
-        libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
+        
+        if platform == 'Windows':
+            libprimesieve_a = os.path.join(lib_path, "Release", "primesieve.lib")
+        else:
+            libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
+        
         assert os.path.isfile(libprimesieve_a), f"Couldn't find {libprimesieve_a}"
 
         return {
-            "libprimesieve.a": libprimesieve_a,
+            "primesieve_lib": libprimesieve_a,
             "include": os.path.join(primesieve_path, "include"),
             "lib": lib_path,
             "primesieve": primesieve_path,
@@ -80,7 +83,7 @@ class Build_ext(build_ext):
     def run(self):
         builder = PrimesieveBuilder()
         dirs = builder.build_primesieve()
-        libprimesieve_a = dirs["libprimesieve.a"]
+        libprimesieve_lib = dirs["primesieve_lib"]
         primesieve_include = dirs["include"]
         libprimesieve_path = dirs["lib"]
 
@@ -91,7 +94,7 @@ class Build_ext(build_ext):
         assert self.extensions[0].name == "PandaPrimes.PandaPrimes", "PandaPrimes exaction is not defined"
         
         # Add `libprimesieve.a` path to PandaPrimes_ext extra_objects list avoiding 
-        self.extensions[0].extra_objects.append(libprimesieve_a)
+        self.extensions[0].extra_objects.append(libprimesieve_lib)
 
         super().run()
 
@@ -107,7 +110,7 @@ sources = ["PandaPrimes/src/" + c for c in os.listdir("PandaPrimes/src") if c.en
 PandaPrimes_ext = Extension(
     name="PandaPrimes.PandaPrimes",
     sources=sources,
-    libraries=["stdc++", "pthread"],
+    libraries=["stdc++"] if platform == "Linux" else [],
     include_dirs=["PandaPrimes/src/include"],
     language="c",
     extra_compile_args=[],
