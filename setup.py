@@ -88,9 +88,9 @@ class Build_ext(build_ext):
         libprimesieve_path = dirs["lib"]
 
         if platform == "Windows":
-            libprimesieve_lib.replace("/","\\")
-            primesieve_include.replace("/","\\")
-            libprimesieve_path.replace("/","\\")
+            libprimesieve_lib = libprimesieve_lib.replace("/","\\")
+            primesieve_include = primesieve_include.replace("/","\\")
+            libprimesieve_path = libprimesieve_path.replace("/","\\")
 
 
         print(libprimesieve_lib)
