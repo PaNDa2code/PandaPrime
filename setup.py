@@ -84,6 +84,7 @@ class Build_ext(build_ext):
         builder = PrimesieveBuilder()
         dirs = builder.build_primesieve()
         libprimesieve_lib = dirs["primesieve_lib"]
+        print(libprimesieve_lib)
         primesieve_include = dirs["include"]
         libprimesieve_path = dirs["lib"]
 
