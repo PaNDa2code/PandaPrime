@@ -37,15 +37,15 @@ class PrimesieveBuilder:
                 "primesieve": "primesieve-master",
             }
         
-        # from cmake import CMAKE_BIN_DIR as cmake_bin_dir
+        from cmake import CMAKE_BIN_DIR as cmake_bin_dir
 
         if platform == 'Windows':
             cmake_executable = "cmake.exe"
         else:
             cmake_executable = "cmake"
 
-        # cmake_path = os.path.join(cmake_bin_dir, cmake_executable)
-        cmake_path = cmake_executable
+        cmake_path = os.path.join(cmake_bin_dir, cmake_executable) if platform == "Linux" else cmake_executable
+        # cmake_path = cmake_executable
         
         
         # assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
@@ -65,14 +65,14 @@ class PrimesieveBuilder:
         subprocess.run(build_command)
         
         if platform == 'Windows':
-            libprimesieve_a = os.path.join(lib_path, "Release", "primesieve.lib")
+            primesieve_lib = os.path.join(lib_path, "Release", "primesieve.lib")
         else:
-            libprimesieve_a = os.path.join(lib_path, "libprimesieve.a")
+            primesieve_lib = os.path.join(lib_path, "libprimesieve.a")
                 
-        assert os.path.isfile(libprimesieve_a), f"Couldn't find {libprimesieve_a}"
+        assert os.path.isfile(primesieve_lib), f"Couldn't find {primesieve_lib}"
 
         return {
-            "primesieve_lib": libprimesieve_a,
+            "primesieve_lib": primesieve_lib,
             "include": os.path.join(primesieve_path, "include"),
             "lib": lib_path,
             "primesieve": primesieve_path,
@@ -83,19 +83,19 @@ class Build_ext(build_ext):
     def run(self):
         builder = PrimesieveBuilder()
         dirs = builder.build_primesieve()
-        libprimesieve_lib = dirs["primesieve_lib"]
+        primesieve_lib = dirs["primesieve_lib"]
         primesieve_include = dirs["include"]
-        libprimesieve_path = dirs["lib"]
+        primesieve_path = dirs["lib"]
 
         if platform == "Windows":
-            libprimesieve_lib = libprimesieve_lib.replace("/","\\")
+            primesieve_lib = primesieve_lib.replace("/","\\")
             primesieve_include = primesieve_include.replace("/","\\")
-            libprimesieve_path = libprimesieve_path.replace("/","\\")
+            primesieve_path = primesieve_path.replace("/","\\")
 
 
-        print(libprimesieve_lib)
+        print(primesieve_lib)
         print(primesieve_include)
-        print(libprimesieve_path)
+        print(primesieve_path)
 
         from numpy import get_include
 
@@ -104,7 +104,7 @@ class Build_ext(build_ext):
         assert self.extensions[0].name == "PandaPrimes.PandaPrimes", "PandaPrimes exaction is not defined"
         
         # Add `libprimesieve.a` path to PandaPrimes_ext extra_objects list avoiding 
-        self.extensions[0].extra_objects.append(libprimesieve_lib)
+        self.extensions[0].extra_objects.append(primesieve_lib)
 
         super().run()
 
