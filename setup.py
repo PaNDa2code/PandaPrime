@@ -45,10 +45,10 @@ class PrimesieveBuilder:
             cmake_executable = "cmake"
 
         cmake_path = os.path.join(cmake_bin_dir, cmake_executable) if platform == "Linux" else cmake_executable
-        # cmake_path = cmake_executable
-        
-        
-        # assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
+                
+        assert os.path.isfile(cmake_path), f"Couldn't find {cmake_path}"
+
+        cmake_path = os.path("/user/bin/cmake") if os.path.isfile("/user/bin/cmake") else cmake_path
 
         cmake_build_args = ["--parallel", "--config", "Release"] if platform == 'Windows' else ["--parallel"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
