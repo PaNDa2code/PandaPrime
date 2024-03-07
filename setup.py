@@ -37,9 +37,9 @@ class PrimesieveBuilder:
                 "primesieve": "primesieve-master",
             }
         
-        from cmake import CMAKE_BIN_DIR as cmake_bin_dir
+        # from cmake import CMAKE_BIN_DIR as cmake_bin_dir
 
-        if platform == 'Windows':
+        if platform.startswith("Windows"):
             cmake_executable = "cmake.exe"
         else:
             cmake_executable = "cmake"
@@ -65,7 +65,7 @@ class PrimesieveBuilder:
         build_command = [cmake_path, "--build", lib_path] + cmake_build_args
         subprocess.run(build_command)
         
-        if platform == 'Windows':
+        if platform.startswith("Windows"):
             primesieve_lib = os.path.join(lib_path, "Release", "primesieve.lib")
         else:
             primesieve_lib = os.path.join(lib_path, "libprimesieve.a")
@@ -88,7 +88,7 @@ class Build_ext(build_ext):
         primesieve_include = dirs["include"]
         primesieve_path = dirs["lib"]
 
-        if platform == "Windows":
+        if platform.startswith("Windows"):
             primesieve_lib = primesieve_lib.replace("/","\\")
             primesieve_include = primesieve_include.replace("/","\\")
             primesieve_path = primesieve_path.replace("/","\\")
@@ -105,7 +105,10 @@ class Build_ext(build_ext):
         assert self.extensions[0].name == "PandaPrimes.PandaPrimes", "PandaPrimes exaction is not defined"
         
         # Add `libprimesieve.a` path to PandaPrimes_ext extra_objects list avoiding 
-        self.extensions[0].extra_objects.append(primesieve_lib)
+        if platform.startswith("Windows"):
+            self.extensions[0].libraries.append(primesieve_lib)
+        else:
+            self.extensions[0].extra_objects.append(primesieve_lib)
 
         super().run()
 
