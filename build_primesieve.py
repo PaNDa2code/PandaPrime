@@ -29,9 +29,9 @@ class PrimesieveBuilder:
     def build_primesieve(self):
                 
         # nasty trick but it works on windows
-        cmake = ["python", "-c", "import cmake;cmake.cmake()"]
+        # cmake = ["python", "-c", "import cmake;cmake.cmake()"]
 
-        # cmake = "cmake"
+        cmake = "cmake"
 
         cmake_build_args = ["--parallel", "--config", "Release"]
         cmake_config_args = ["-DCMAKE_POSITION_INDEPENDENT_CODE=ON", "-DBUILD_PRIMESIEVE=OFF", "-DBUILD_SHARED_LIBS=OFF"]
@@ -42,11 +42,11 @@ class PrimesieveBuilder:
         lib_path = os.path.join(primesieve_path, "lib")#.replace(" ", "\ ")
         shutil.rmtree(lib_path, ignore_errors=True)
         os.makedirs(lib_path)
-        config_command = [*cmake, f"-B{lib_path}", f"-S{primesieve_path}"] + cmake_config_args
+        config_command = [cmake, f"-B{lib_path}", f"-S{primesieve_path}"] + cmake_config_args
         print(f"running: {' '.join(config_command)}")
         subprocess.run(config_command, shell=True if platform == "Windows" else False)
 
-        build_command = [*cmake, "--build", lib_path] + cmake_build_args
+        build_command = [cmake, "--build", lib_path] + cmake_build_args
         print(f"running: {' '.join(build_command)}")
         subprocess.run(build_command, shell=True if platform == "Windows" else False)
         
